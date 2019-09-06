@@ -1,0 +1,44 @@
+body {
+  background-color: #5f9ea0;
+  color: white;
+  font-family: Helvetica, Arial;
+}
+
+a, a:visited {
+  color: white;
+}
+
+h1 {
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.photo {
+  height: 400px;
+}
+
+.photoContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+#installContainer {
+  position: absolute;
+  bottom: 1em;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+button {
+  background-color: inherit;
+  border: 1px solid white;
+  color: white;
+  font-size: 1em;
+  padding: 0.75em;
+  cursor: pointer;
+}

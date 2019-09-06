@@ -1,0 +1,11 @@
+{
+    "name": "pwa-workshop",
+    "version": "1.0.0",
+    "description": "PWA workshop",
+    "scripts": {
+        "start": "http-server -c-1"
+    },
+    "devDependencies": {
+        "http-server": "^0.10.0"
+    }
+}
