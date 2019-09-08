@@ -1,42 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Playing with pwa!</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="/src/css/app.css">
-    <!-- Manifest -->
-    <link rel="manifest" href="/manifest.json">
-  </head>
-  <body>
-    <h1> Playing with pwa! </h1>
-    <div class="photoContainer">
+
+<head>
+  <title>Playing with pwa!</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- import the webpage's stylesheet -->
+  <link rel="stylesheet" href="/src/css/app.css">
+  <!-- Manifest -->
+  <link rel="manifest" href="/manifest.json">
+</head>
+
+<body>
+  <h1> Playing with pwa! </h1>
+  <div class="photoContainer">
+    <div class="card">
       <img class="photo" src="/src/images/jon.jpg" alt="jon">
+      <div class="container">
+        <h4><b>Jon Rojí</b></h4>
+        <p>Frontend developer - Unicorns lover</p>
+      </div>
+    </div>
+    <div class="card">
       <img class="photo" src="/src/images/vic.jpg" alt="vic">
+      <div class="container">
+        <h4><b>Vicky Dichiera</b></h4>
+        <p>Frontend developer - Wine lover</p>
+      </div>
     </div>
 
-    <!-- Get random data -->
-    <div>
-      <button id="getBtn" type="button">
-        GET data
-      </button>
-    </div>
+  </div>
 
-    <div id="retrivedContentWrapper" class="hidden">
-      <h2>Retrived content</h2>
-      <p id="retrivedContent"></p>
-    </div>
+  <!-- Get random data -->
+  <div>
+    <button id="getBtn" type="button">
+      GET data
+    </button>
+  </div>
 
-    <!-- Install button, hidden by default -->
-    <div id="installContainer" class="hidden">
-      <button id="installBtn" type="button">
-        Install
-      </button>
-    </div>
+  <div>
+    <button id="postBtn" type="button">
+      POST data
+    </button>
+  </div>
 
-    <!-- import the webpage's javascript file -->
-    <script src="/src/js/app.js" defer></script>
-  </body>
+  <div id="retrivedContentWrapper" class="hidden">
+    <h2>Retrived content</h2>
+    <p id="retrivedContent"></p>
+  </div>
+
+  <!-- Install button, hidden by default -->
+  <div id="installContainer" class="hidden">
+    <button id="installBtn" type="button">
+      Install
+    </button>
+  </div>
+
+  <!-- Delete service worker button -->
+  <div>
+    <button id="deleteSwBtn" type="button">
+      Delete service worker
+    </button>
+  </div>
+  <!-- import the webpage's javascript file -->
+  <script src="/src/js/app.js" defer></script>
+</body>
+
 </html>

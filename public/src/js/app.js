@@ -1,6 +1,9 @@
 const divInstall = document.getElementById('installContainer');
 const installBtn = document.getElementById('installBtn');
 const getBtn = document.getElementById('getBtn');
+const postBtn = document.getElementById('postBtn');
+const deleteSwBtn = document.getElementById('deleteSwBtn');
+
 
 /* Check if browser supports 'serviceWorker' before register */
 if ('serviceWorker' in navigator) {
@@ -45,16 +48,7 @@ window.addEventListener('appinstalled', (event) => {
 
 //GET data button
 getBtn.addEventListener('click', () => {
-    fetch('https://httpbin.org/post', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                message: 'probando post request con fetch'
-            })
-        })
+    fetch('https://httpbin.org/get')
         .then(function (response) {
             console.log(response);
             //response.json(); es un método que provee la API fetch
@@ -63,7 +57,7 @@ getBtn.addEventListener('click', () => {
             return response.json();
         })
         .then((jsonData) => {
-            setRetrivedDataElement(jsonData);
+            setRetrivedDataElement('tenemos datos!');
             console.log(jsonData);
         })
         .catch((err) => {
@@ -72,8 +66,50 @@ getBtn.addEventListener('click', () => {
         });
 });
 
-setRetrivedDataElement = (jsonData) => {
+
+
+postBtn.addEventListener('click', () => {
+    fetch('https://httpbin.org/post', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            message: 'probando post request con fetch'
+        })
+    })
+        .then(function (response) {
+            console.log(response);
+            //response.json(); es un método que provee la API fetch
+            // que extrae los datos y los convierte en un objeto json
+            // la misma es una acción asincrónica
+            return response.json();
+        })
+        .then((jsonData) => {
+            setRetrivedDataElement(JSON.parse(jsonData.data).message);
+            console.log(jsonData);
+        })
+        .catch((err) => {
+            document.getElementById('retrivedContent').innerHTML = 'Algo ha ido mal: ' + err;
+            document.getElementById('retrivedContentWrapper').classList.toggle('hidden', false);
+        });
+});
+setRetrivedDataElement = (data) => {
     document.getElementById('retrivedContent').innerHTML = '';
-    document.getElementById('retrivedContent').innerHTML += JSON.parse(jsonData.data).message;
+    document.getElementById('retrivedContent').innerHTML += data;
     document.getElementById('retrivedContentWrapper').classList.toggle('hidden', false);
 }
+
+// Delete service worker
+
+deleteSwBtn.addEventListener('click', () => {
+    if('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations()
+        .then((registrations) => {
+            for(let i; i < registrations.length; i++){
+                registrations[i].unregister();
+            }
+        })
+    }
+});
