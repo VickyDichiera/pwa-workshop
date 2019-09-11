@@ -20,7 +20,7 @@ h1 {
   height: 400px;
 }
 
-.photoContainer {
+#photoContainer {
   display: flex;
   justify-content: center;
   width: 100%;

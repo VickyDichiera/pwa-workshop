@@ -1,4 +1,4 @@
-let CACHE_VERSION = 9;
+let CACHE_VERSION = 18;
 const CURRENT_CACHES = {
   static: 'static_cache_v' + CACHE_VERSION,
   dynamic: 'dynamic_cache_v' + CACHE_VERSION
@@ -61,15 +61,14 @@ self.addEventListener('activate', (event) => {
 });
 
 /* Cache strategies */
+
 /*Network only*/
 // self.addEventListener('fetch', (event) => {
-//   console.log('🙌🏽', 'fetching something: ', event.request.url);
 //   event.respondWith(fetch(event.request));
 // });
 
 /*Cache only*/
 // self.addEventListener('fetch', (event) => {
-//   console.log('🙌🏽', 'fetching something: ', event.request.url);
 //   event.respondWith(caches.match(event.request));
 // });
 
@@ -117,7 +116,7 @@ self.addEventListener('activate', (event) => {
 
 /*Cache then network fallback*/
 self.addEventListener('fetch', (event) => {
-  console.log('🙌🏽', 'fetching something: ', event.request.url);
+  console.log('🙌🏽', 'fetching something: ', event.request.method +' '+ event.request.url);
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
@@ -152,3 +151,25 @@ self.addEventListener('fetch', (event) => {
   )
 });
 
+
+//Background sync
+self.addEventListener('sync', (event) => {
+  console.log('🤝', 'sync', event);
+  if (event.tag === 'sync-dummy-post'){
+    console.log('sync post');
+    event.waitUntil(
+      fetch('https://httpbin.org/post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'probando post request con fetch'
+        })
+      }).then(() => {
+        //delete item from indexedBD
+      })
+    );
+  }
+});

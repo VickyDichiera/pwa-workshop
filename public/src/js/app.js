@@ -8,9 +8,9 @@ const deleteSwBtn = document.getElementById('deleteSwBtn');
 /* Check if browser supports 'serviceWorker' before register */
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js')
-    .then((event)=> {
-        console.log('💁🏽', 'sw registered: ', event);
-    });
+        .then((event) => {
+            console.log('💁🏽', 'sw registered: ', event);
+        });
 }
 
 /*Installable code*/
@@ -67,33 +67,47 @@ getBtn.addEventListener('click', () => {
 });
 
 
-
+//Background syncronization //SyncManager API
 postBtn.addEventListener('click', () => {
-    fetch('https://httpbin.org/post', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-            message: 'probando post request con fetch'
+
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
+        navigator.serviceWorker.ready.then((sw) => {
+            setRetrivedDataElement('Probando background sync');
+
+            sw.sync.register('sync-dummy-post');
+            //Save it in indexedBD not acces to localstorage in sw
+            //indexeDB.setItem('sync-dummy-data', JSON.stringify({ message: 'probando post request con fetch' }));
         })
-    })
-        .then(function (response) {
-            console.log(response);
-            //response.json(); es un método que provee la API fetch
-            // que extrae los datos y los convierte en un objeto json
-            // la misma es una acción asincrónica
-            return response.json();
+    } else {
+        setRetrivedDataElement('☹️ Sorry este navegador no tiene soporte para background sync y no hay conexión ');
+
+        fetch('https://httpbin.org/post', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                message: 'probando post request con fetch'
+            })
         })
-        .then((jsonData) => {
-            setRetrivedDataElement(JSON.parse(jsonData.data).message);
-            console.log(jsonData);
-        })
-        .catch((err) => {
-            document.getElementById('retrivedContent').innerHTML = 'Algo ha ido mal: ' + err;
-            document.getElementById('retrivedContentWrapper').classList.toggle('hidden', false);
-        });
+            .then(function (response) {
+                console.log(response);
+                //response.json(); es un método que provee la API fetch
+                // que extrae los datos y los convierte en un objeto json
+                // la misma es una acción asincrónica
+                return response.json();
+            })
+            .then((jsonData) => {
+                setRetrivedDataElement(JSON.parse(jsonData.data).message);
+                console.log(jsonData);
+            })
+            .catch((err) => {
+                document.getElementById('retrivedContent').innerHTML = 'Algo ha ido mal: ' + err;
+                document.getElementById('retrivedContentWrapper').classList.toggle('hidden', false);
+            });
+    }
+
 });
 setRetrivedDataElement = (data) => {
     document.getElementById('retrivedContent').innerHTML = '';
@@ -101,15 +115,38 @@ setRetrivedDataElement = (data) => {
     document.getElementById('retrivedContentWrapper').classList.toggle('hidden', false);
 }
 
-// Delete service worker
-
+/*Delete service worker*/
 deleteSwBtn.addEventListener('click', () => {
-    if('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations()
-        .then((registrations) => {
-            for(let i; i < registrations.length; i++){
-                registrations[i].unregister();
-            }
-        })
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations()
+            .then((registrations) => {
+                for (let i; i < registrations.length; i++) {
+                    registrations[i].unregister();
+                }
+            })
     }
 });
+
+/*Create cards on demand*/
+function createCard(data) {
+    let card = '<div class="card">' +
+        '    <img class="photo" src="' + data.image.src + '" alt="' + data.image.alt + '">' +
+        '        <div class="container">' +
+        '            <h4><b>' + data.name + '</b></h4>' +
+        '            <p>' + data.description + '</p>' +
+        '        </div>' +
+        '    </div>';
+    let photoContainer = document.getElementById('photoContainer');
+    photoContainer.insertAdjacentHTML('beforeend', card)
+}
+
+function createJonCard() {
+    createCard({
+        name: 'jon',
+        description: 'un jon',
+        image: {
+            src: '/src/images/jon.jpg',
+            alt: 'jonsimage'
+        }
+    })
+}
