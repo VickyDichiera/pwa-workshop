@@ -3,6 +3,8 @@ const installBtn = document.getElementById('installBtn');
 const getBtn = document.getElementById('getBtn');
 const postBtn = document.getElementById('postBtn');
 const deleteSwBtn = document.getElementById('deleteSwBtn');
+const notificationsContainer = document.getElementById('notificationsContainer');
+const notificationsBtn = document.getElementById('notificationsBtn');
 
 
 /* Check if browser supports 'serviceWorker' before register */
@@ -16,33 +18,27 @@ if ('serviceWorker' in navigator) {
 /*Installable code*/
 window.addEventListener('beforeinstallprompt', (event) => {
     console.log('💃🏽', 'beforeinstallprompt - ready to install: ', event);
-    // Stash the event so it can be triggered later.
+    // Guardar el evento para lanzarlo luego.
     window.deferredPrompt = event;
-    // Remove the 'hidden' class from the install button container
+    // Mostrar el botón de instalar app
     divInstall.classList.toggle('hidden', false);
 });
 
 installBtn.addEventListener('click', () => {
     console.log('👆🏽', 'installBtn-clicked');
     // const promptEvent = window.deferredPrompt
-    // if (!promptEvent) {
-    //     // The deferred prompt isn't available.
-    //     return;
-    // }
     // // Show the install prompt.
     // promptEvent.prompt();
     // // Log the result
     // promptEvent.userChoice.then((result) => {
     //     console.log('👍', 'userChoice', result);
-    //     // Reset the deferred prompt variable, since
-    //     // prompt() can only be called once.
     //     window.deferredPrompt = null;
-    //     // Hide the install button.
     //     divInstall.classList.toggle('hidden', true);
     // });
 });
 
 window.addEventListener('appinstalled', (event) => {
+    //Metricas de apps instaladas
     console.log('🕴🏼', 'appinstalled event: ', event);
 });
 
@@ -66,17 +62,30 @@ getBtn.addEventListener('click', () => {
         });
 });
 
-
+//IndexedDB
 //Background syncronization //SyncManager API
 postBtn.addEventListener('click', () => {
 
     if ('serviceWorker' in navigator && 'SyncManager' in window) {
         navigator.serviceWorker.ready.then((sw) => {
             setRetrivedDataElement('Probando background sync');
-
-            sw.sync.register('sync-dummy-post');
+            let card = {
+                id: 'sync-dummy-post',
+                name: 'jon',
+                description: 'un jon',
+                image: {
+                    src: '/src/images/jon.jpg',
+                    alt: 'jonsimage'
+                }
+            }
+            addItemDB('cardsStore', card)
+            .then((data)=>{
+              console.log('success indexed db: ', data);
+                sw.sync.register('sync-dummy-post');
+            })
             //Save it in indexedBD not acces to localstorage in sw
             //indexeDB.setItem('sync-dummy-data', JSON.stringify({ message: 'probando post request con fetch' }));
+
         })
     } else {
         setRetrivedDataElement('☹️ Sorry este navegador no tiene soporte para background sync y no hay conexión ');
@@ -126,6 +135,56 @@ deleteSwBtn.addEventListener('click', () => {
             })
     }
 });
+
+/*Enable Notifications*/
+/* Check if browser supports 'serviceWorker' before register */
+if ('Notification' in window) {
+    notificationsContainer.classList.toggle('hidden', false);
+    notificationsBtn.addEventListener('click', handleEnableNotifications);
+}
+
+function handleEnableNotifications() {
+    let notificationsOptions = {
+        body: 'soy una descripción',
+        icon: '/src/images/icons/app-icon-96x96.png',
+        image: '/src/images/jon.jpg',
+        dir: 'ltr',//default
+        lang: 'es-AR', //BCP 47
+        vibrate: [100, 50, 200], //viabrate pattern
+        badge: '/src/images/icons/app-icon-96x96.png', //recomendada por android, imagen que se muestra en la barra superior del movil
+
+        tag: 'id-notification-enabled', //opcional: para no solapar notificaciones del mismo tipo
+        renotify: true, //vibra el telefono muchas veces si tenemos muchas con el mismo tag, aunque no le muestra todas tipo spam
+
+        actions: [
+            { action: 'id-action-ok', title: 'yeah', icon: '/src/images/icons/app-icon-96x96.png' },
+            { action: 'id-action-ko', title: 'no :(', icon: '/src/images/icons/app-icon-96x96.png' }
+        ]
+    }
+    //Ask for permissions
+    Notification.requestPermission((result) => {
+        console.log('User request permissions choise: ', result);
+        if (result === 'granted') {
+            displayNotifications('Gracias', notificationsOptions);
+        } else {
+            displayNotifications('Te arrepentiras... o no', notificationsOptions);
+        }
+    })
+}
+
+function displayNotifications(title, options) {
+    // browser way:
+    //new Notification(title, options);
+
+    // service worker way:
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then((swRegistration) => {
+            swRegistration.showNotification(title, options);
+        })
+    }
+}
+
+
 
 /*Create cards on demand*/
 function createCard(data) {

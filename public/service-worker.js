@@ -1,4 +1,6 @@
-let CACHE_VERSION = 18;
+importScripts('/src/js/indexedDButils.js');
+
+let CACHE_VERSION = 28;
 const CURRENT_CACHES = {
   static: 'static_cache_v' + CACHE_VERSION,
   dynamic: 'dynamic_cache_v' + CACHE_VERSION
@@ -8,6 +10,7 @@ let staticUrlsToCache = [
   '/',
   '/index.html',
   '/src/css/app.css',
+  '/src/js/indexedDButils.js',
   '/src/js/app.js'
 ];
 let dynamicUrlsToCache = [
@@ -117,59 +120,108 @@ self.addEventListener('activate', (event) => {
 /*Cache then network fallback*/
 self.addEventListener('fetch', (event) => {
   console.log('🙌🏽', 'fetching something: ', event.request.method +' '+ event.request.url);
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        console.log('match response: ' + event.request.url);
-        return response;
-      } else {
-        console.log('network response: ' + event.request.url);
-        return fetch(event.request).then((response) => {
-          // Check if we received a valid response
-          if (!response || response.status !== 200) {
-            return response;
-          } else {
-            // IMPORTANT: Clone the response. A response is a stream
-            // and because we want the browser to consume the response
-            // as well as the cache consuming the response, we need
-            // to clone it so we have two streams.
-            let responseToCache = response.clone();
-            caches.open(CURRENT_CACHES['dynamic'])
-              .then((cache) => {
-                console.log('📂', 'Saving in dynamic cache: ' + event.request.url);
-                cache.put(event.request, responseToCache);
-              });
-            return response;
+  if (event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request));
+  } else {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        if (response) {
+          console.log('match response: ' + event.request.url);
+          return response;
+        } else {
+          console.log('network response: ' + event.request.url);
+          return fetch(event.request).then((response) => {
+            // Check if we received a valid response
+            if (!response || response.status !== 200) {
+              return response;
+            } else {
+              // IMPORTANT: Clone the response. A response is a stream
+              // and because we want the browser to consume the response
+              // as well as the cache consuming the response, we need
+              // to clone it so we have two streams.
+              let responseToCache = response.clone();
+              caches.open(CURRENT_CACHES['dynamic'])
+                .then((cache) => {
+                  console.log('📂', 'Saving in dynamic cache: ' + event.request.url);
+                  cache.put(event.request, responseToCache);
+                });
+              return response;
 
-          }
+            }
 
-        }).catch((err) => {
-          console.log('cant load resource from cache');
-        });
-      }
-    })
-  )
+          }).catch((err) => {
+            console.log('cant load resource from cache');
+          });
+        }
+      })
+    )
+  }
+
 });
-
 
 //Background sync
 self.addEventListener('sync', (event) => {
   console.log('🤝', 'sync', event);
   if (event.tag === 'sync-dummy-post'){
     console.log('sync post');
-    event.waitUntil(
-      fetch('https://httpbin.org/post', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          message: 'probando post request con fetch'
-        })
-      }).then(() => {
-        //delete item from indexedBD
+    // let item = {
+    //   id: 'sync-dummy-post',
+    //   price: '$2.99',
+    //   description: 'It is a purple banana!',
+    //   created: new Date().getTime()
+    // };
+    // addItemDB('cardsStore',item)
+    // .then((data)=>{
+    //   console.log('success indexed db: ', data);
+    //   return getItemDB('cardsStore', data);
+    // })
+    getItemDB('cardsStore', "sync-dummy-post")
+      .then((item) => {
+        console.log('retrive item from indexedDB', item);
+        event.waitUntil(
+
+          fetch('https://httpbin.org/post', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              message: 'probando post request con fetch'
+            })
+          }).then(() => {
+            //delete item from indexedBD
+            deleteItemDB('cardsStore', item.id)
+              .then(() => {
+                console.log('deleted item from store');
+              })
+              .catch((err) => {
+                console.log('Woot! Did it: ', err);
+              });
+          })
+        );
+
       })
-    );
+
+
   }
 });
+
+//React Notifications actions
+self.addEventListener('notificationclick', (event)=> {
+  console.log('🔔', 'notification action recived', event.notification);
+
+  let notification = event.notification;
+  let action = event.action;
+
+  if (action === 'id-action-ok') {
+     console.log('action ok iuju');
+  } else {
+    console.log('action ko buu');
+  }
+  notification.close();
+})
+
+self.addEventListener('notificationclose', (event) => {
+  console.log('🔔', 'notification was close', event.notification);
+})
