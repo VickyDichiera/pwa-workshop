@@ -14,7 +14,7 @@ let staticUrlsToCache = [
   '/src/js/app.js'
 ];
 let dynamicUrlsToCache = [
-  '/src/images/jon.jpg'
+  '/src/images/jon_.webp'
 ];
 
 let deleteOldCache = () => {
