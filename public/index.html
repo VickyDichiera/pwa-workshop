@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="Description" content="Pwa testing page.">
-  <meta name="theme-color" content="#3f51b5"/>
+  <meta name="theme-color" content="#3f51b5" />
 
   <!-- icon in the highest resolution we need it for -->
   <link rel="icon" sizes="512x512" href="/src/images/icons/app-icon-512x512.png">
@@ -44,44 +44,43 @@
 
   </div>
 
-  <!-- Get random data -->
-  <div>
-    <button id="getBtn" type="button">
-      GET data
-    </button>
-  </div>
-
-  <div>
-    <button id="postBtn" type="button">
-      POST data
-    </button>
-  </div>
 
   <div id="retrivedContentWrapper" class="hidden">
     <h2>Retrived content</h2>
     <p id="retrivedContent"></p>
   </div>
 
-  <!-- Install button, hidden by default -->
-  <div id="installContainer" class="hidden">
-    <button id="installBtn" type="button">
-      Install
+  <!-- Get random data -->
+  <div class="actions-wrapper">
+    <button id="getBtn" type="button">
+      GET data
     </button>
-  </div>
-
-  <!-- Enable notifications button, hidden by default -->
-  <div id="notificationsContainer" class="hidden">
-    <button id="notificationsBtn" type="button">
-      Enable Notifications
+    <button id="postBtn" type="button">
+      POST data
     </button>
-  </div>
 
-  <!-- Delete service worker button -->
-  <div>
+    <!-- Delete service worker button -->
     <button id="deleteSwBtn" type="button">
       Delete service worker
     </button>
+
+    <!-- Enable notifications button, hidden by default -->
+    <div id="notificationsContainer" class="hidden">
+      <button id="notificationsBtn" type="button">
+        Enable Notifications
+      </button>
+    </div>
+
+
+    <!-- Install button, hidden by default -->
+    <div id="installContainer" class="hidden">
+      <button id="installBtn" type="button">
+        Install app
+      </button>
+    </div>
+
   </div>
+
   <!-- import the webpage's javascript file -->
   <script src="/src/js/indexedDButils.js" defer></script>
   <script src="/src/js/app.js" defer></script>
