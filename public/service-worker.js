@@ -5,15 +5,15 @@ const CURRENT_CACHES = {
 };
 
 let staticUrlsToCache = [
-  '/',
-  '/index.html',
-  '/src/css/app.css',
-  '/src/js/indexedDButils.js',
-  '/src/js/app.js',
-  '/src/images/icons/app-icon-512x512.png'
+  '',
+  'index.html',
+  'src/css/app.css',
+  'src/js/indexedDButils.js',
+  'src/js/app.js',
+  'src/images/icons/app-icon-512x512.png'
 ];
 let dynamicUrlsToCache = [
-  '/src/images/jon_.webp'
+  'src/images/jon_.webp'
 ];
 
 let deleteOldCache = () => {
@@ -154,7 +154,7 @@ self.addEventListener('fetch', (event) => {
 // });
 
 //Background sync
-importScripts('/src/js/indexedDButils.js');
+importScripts('src/js/indexedDButils.js');
 self.addEventListener('sync', (event) => {
   console.log('🤝', 'sync', event);
   if (event.tag === 'sync-dummy-post') {
