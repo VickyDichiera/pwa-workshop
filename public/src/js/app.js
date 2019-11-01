@@ -9,7 +9,7 @@ const notificationsBtn = document.getElementById('notificationsBtn');
 
 /* Check if browser supports 'serviceWorker' before register */
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker.register('service-worker.js')
         .then((event) => {
             console.log('💁🏽', 'sw registered: ', event);
         });
