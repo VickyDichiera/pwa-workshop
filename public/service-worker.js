@@ -13,7 +13,7 @@ let staticUrlsToCache = [
   'src/images/icons/app-icon-512x512.png'
 ];
 let dynamicUrlsToCache = [
-  'src/images/jon_.webp'
+  'src/images/jon.png'
 ];
 
 let deleteOldCache = () => {
