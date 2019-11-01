@@ -1,6 +1,4 @@
-importScripts('/src/js/indexedDButils.js');
-
-let CACHE_VERSION = 28;
+let CACHE_VERSION = 35;
 const CURRENT_CACHES = {
   static: 'static_cache_v' + CACHE_VERSION,
   dynamic: 'dynamic_cache_v' + CACHE_VERSION
@@ -11,7 +9,8 @@ let staticUrlsToCache = [
   '/index.html',
   '/src/css/app.css',
   '/src/js/indexedDButils.js',
-  '/src/js/app.js'
+  '/src/js/app.js',
+  '/src/images/icons/app-icon-512x512.png'
 ];
 let dynamicUrlsToCache = [
   '/src/images/jon_.webp'
@@ -45,11 +44,9 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   console.log('🙋🏽', 'activate', event);
-  //Se asegura que se ha activado correctamente, es necesario por ahora.
   // return self.clients.claim();
-
   event.waitUntil(
-    //delete old cache before save a new one
+    //clean cache
     caches.keys().then((cacheNames) => {
       if (cacheNames.length > 0) {
         return deleteOldCache();
@@ -76,29 +73,29 @@ self.addEventListener('activate', (event) => {
 // });
 
 /*Network then cache*/
-// self.addEventListener('fetch', (event) => {
-//   console.log('🙌🏽', 'fetching something: ', event.request.url);
-//   event.respondWith(
-//     fetch(event.request)
-//       .then((response) => {
-//         return caches.open(CURRENT_CACHES['dynamic'])
-//           .then((cache) => {
-//             cache.put(event.request, response.clone());
-//             return response;
-//           })
-//       })
-//       .catch((err) => {
-//         return caches.match(event.request).then((cacheResponse) => {
-//           if (cacheResponse) {
-//             console.log('match response: ' + event.request.url);
-//             return cacheResponse;
-//           } else {
-//             console.log('cant load resource from cache: ' + event.request.url);
-//           }
-//         })
-//       })
-//   )
-// });
+self.addEventListener('fetch', (event) => {
+  console.log('🙌🏽', 'fetching something: ', event.request.url);
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        return caches.open(CURRENT_CACHES['dynamic'])
+          .then((cache) => {
+            //cache.put(event.request, response.clone());
+            return response;
+          })
+      })
+      .catch((err) => {
+        return caches.match(event.request).then((cacheResponse) => {
+          if (cacheResponse) {
+            console.log('match response: ' + event.request.url);
+            return cacheResponse;
+          } else {
+            console.log('cant load resource from cache: ' + event.request.url);
+          }
+        })
+      })
+  )
+});
 
 /*Cache first then network fallback(not saving data)*/
 // self.addEventListener('fetch', (event) => {
@@ -118,67 +115,56 @@ self.addEventListener('activate', (event) => {
 // });
 
 /*Cache then network fallback*/
-self.addEventListener('fetch', (event) => {
-  console.log('🙌🏽', 'fetching something: ', event.request.method +' '+ event.request.url);
-  if (event.request.method !== 'GET') {
-    event.respondWith(fetch(event.request));
-  } else {
-    event.respondWith(
-      caches.match(event.request).then((response) => {
-        if (response) {
-          console.log('match response: ' + event.request.url);
-          return response;
-        } else {
-          console.log('network response: ' + event.request.url);
-          return fetch(event.request).then((response) => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200) {
-              return response;
-            } else {
-              // IMPORTANT: Clone the response. A response is a stream
-              // and because we want the browser to consume the response
-              // as well as the cache consuming the response, we need
-              // to clone it so we have two streams.
-              let responseToCache = response.clone();
-              caches.open(CURRENT_CACHES['dynamic'])
-                .then((cache) => {
-                  console.log('📂', 'Saving in dynamic cache: ' + event.request.url);
-                  cache.put(event.request, responseToCache);
-                });
-              return response;
+// self.addEventListener('fetch', (event) => {
+//   console.log('🙌🏽', 'fetching something: ', event.request.method +' '+ event.request.url);
+//   if (event.request.method !== 'GET') {
+//     event.respondWith(fetch(event.request));
+//   } else {
+//     event.respondWith(
+//       caches.match(event.request).then((response) => {
+//         if (response) {
+//           console.log('match response: ' + event.request.url);
+//           return response;
+//         } else {
+//           console.log('network response: ' + event.request.url);
+//           return fetch(event.request).then((response) => {
+//             // Comprobamos que la respuesta sea OK
+//             if (!response || response.status !== 200) {
+//               return response;
+//             } else {
+//               // IMPORTANTE: clonar la respuesta, solo puede ser consumida una vez.
+//               let responseToCache = response.clone();
+//               caches.open(CURRENT_CACHES['dynamic'])
+//                 .then((cache) => {
+//                   console.log('📂', 'Saving in dynamic cache: ' + event.request.url);
+//                   cache.put(event.request, responseToCache);
+//                 });
+//               return response;
 
-            }
+//             }
 
-          }).catch((err) => {
-            console.log('cant load resource from cache');
-          });
-        }
-      })
-    )
-  }
+//           }).catch((err) => {
+//             console.log('cant load resource from cache');
+//           });
+//         }
+//       })
+//     )
+//   }
 
-});
+// });
 
 //Background sync
+importScripts('/src/js/indexedDButils.js');
 self.addEventListener('sync', (event) => {
   console.log('🤝', 'sync', event);
-  if (event.tag === 'sync-dummy-post'){
+  if (event.tag === 'sync-dummy-post') {
     console.log('sync post');
-    // let item = {
-    //   id: 'sync-dummy-post',
-    //   price: '$2.99',
-    //   description: 'It is a purple banana!',
-    //   created: new Date().getTime()
-    // };
-    // addItemDB('cardsStore',item)
-    // .then((data)=>{
-    //   console.log('success indexed db: ', data);
-    //   return getItemDB('cardsStore', data);
-    // })
-    getItemDB('cardsStore', "sync-dummy-post")
-      .then((item) => {
-        console.log('retrive item from indexedDB', item);
-        event.waitUntil(
+
+    event.waitUntil(
+
+      getItemDB('cardsStore', "sync-dummy-post")
+        .then((item) => {
+          console.log('recuperando item de indexedDB', item);
 
           fetch('https://httpbin.org/post', {
             method: 'POST',
@@ -186,36 +172,35 @@ self.addEventListener('sync', (event) => {
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             },
-            body: JSON.stringify({
-              message: 'probando post request con fetch'
-            })
+            body: JSON.stringify(item)
           }).then(() => {
-            //delete item from indexedBD
+            //borramos item de indexedBD
             deleteItemDB('cardsStore', item.id)
               .then(() => {
                 console.log('deleted item from store');
-              })
-              .catch((err) => {
-                console.log('Woot! Did it: ', err);
               });
           })
-        );
 
-      })
+        })
 
+    );
 
   }
 });
 
+self.addEventListener('push', (event) => {
+  console.log('🤝', 'push', event);
+});
+
 //React Notifications actions
-self.addEventListener('notificationclick', (event)=> {
+self.addEventListener('notificationclick', (event) => {
   console.log('🔔', 'notification action recived', event.notification);
 
   let notification = event.notification;
   let action = event.action;
 
   if (action === 'id-action-ok') {
-     console.log('action ok iuju');
+    console.log('action ok iuju');
   } else {
     console.log('action ko buu');
   }

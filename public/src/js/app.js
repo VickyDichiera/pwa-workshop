@@ -65,7 +65,6 @@ getBtn.addEventListener('click', () => {
 //IndexedDB
 //Background syncronization //SyncManager API
 postBtn.addEventListener('click', () => {
-
     if ('serviceWorker' in navigator && 'SyncManager' in window) {
         navigator.serviceWorker.ready.then((sw) => {
             setRetrivedDataElement('Probando background sync');
@@ -74,7 +73,7 @@ postBtn.addEventListener('click', () => {
                 name: 'jon',
                 description: 'un jon',
                 image: {
-                    src: '/src/images/jon.jpg',
+                    src: '/src/images/jon_.webp',
                     alt: 'jonsimage'
                 }
             }
@@ -118,6 +117,7 @@ postBtn.addEventListener('click', () => {
     }
 
 });
+
 setRetrivedDataElement = (data) => {
     document.getElementById('retrivedContent').innerHTML = '';
     document.getElementById('retrivedContent').innerHTML += data;
@@ -163,11 +163,11 @@ function handleEnableNotifications() {
     }
     //Ask for permissions
     Notification.requestPermission((result) => {
-        console.log('User request permissions choise: ', result);
+        console.log('Elección del usuario: ', result);
         if (result === 'granted') {
             displayNotifications('Gracias', notificationsOptions);
         } else {
-            displayNotifications('Te arrepentiras... o no', notificationsOptions);
+            displayNotifications('Te arrepentiras...', notificationsOptions);
         }
     })
 }
@@ -183,6 +183,9 @@ function displayNotifications(title, options) {
         })
     }
 }
+
+
+
 
 
 
